@@ -1,70 +1,87 @@
-# Getting Started with Create React App
+A simple user interface element called Simple List shows a group of connected objects in a vertical list format. By clicking or tapping on the list items, users can do various actions or travel to different screens. The Simple List component is a practical and adaptable UI element that offers a simple approach to present a group of related things to users in an understandable and structured fashion.
+1. The "onClick" handler in the "WrappedSingleListItem" component is set to "onClick=onClickHandler(index)". Instead of registering it as an event handler, this will immediately call the 'onClickHandler' method with the 'index' attribute when the component is rendered. You can update it to "onClick=() => onClickHandler(index)" to correct this.                                                                                                                                                         2.  The 'useState' hook is wrongly called in the 'WrappedListComponent' component. The setter function is supplied as an input to 'useState' rather than the original state value. Change that to "const [selectedIndex, setSelectedIndex] = useState(null);" to fix the problem.                                                           3. The 'items' prop in the 'WrappedListComponent' component is set to 'null' by default, but the 'propTypes' validator anticipates that it should be an array of objects. You may correct this by setting the default value to an empty array using the following syntax: "WrappedListComponent.defaultProps = items: [] ;".              4. The 'propTypes' validator for the 'items' prop is incorrectly defined in the 'WrappedListComponent' component. You should call the array and shapeOf validators as functions, as in "PropTypes.arrayOf(PropTypes.shape(... ))". Change it to "WrappedListComponent.propTypes = items: PropTypes.arrayOf(PropTypes.shape( text: PropTypes.string.isRequired ))" to address the issue.
+import React, { useState, useEffect, memo } from 'react';
+import PropTypes from 'prop-types';
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+// Single List Item
+const WrappedSingleListItem = ({
+    index,
+    isSelected,
+    onClickHandler,
+    text
+}) => {
+  return (
+    <li
+      style={{ backgroundColor: isSelected ? 'purple' : 'blue' }}
+      onClick={() => onClickHandler(index)}
+    >
+      {text}
+    </li>
+  );
+};
 
-## Available Scripts
+WrappedSingleListItem.propTypes = {
+  index: PropTypes.number,
+  isSelected: PropTypes.bool,
+  onClickHandler: PropTypes.func.isRequired,
+  text: PropTypes.string.isRequired,
+};
 
-In the project directory, you can run:
+const SingleListItem = memo(WrappedSingleListItem);
 
-### `npm start`
+// List Component
+const WrappedListComponent = ({ 
+    items
+}) => {
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+  useEffect(() => {
+    setSelectedIndex(null);
+  }, [items]);
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+  const handleClick = (index) => {
+    setSelectedIndex(index);
+  };
 
-### `npm test`
+  return (
+    <ul style={{ textAlign: 'left' }}>
+      {items.map((item, index) => (
+        <SingleListItem
+          key={index}
+          onClickHandler={handleClick}
+          text={item.text}
+          index={index}
+          isSelected={selectedIndex === index}
+        />
+      ))}
+    </ul>
+  );
+};
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+WrappedListComponent.propTypes = {
+  items: PropTypes.arrayOf(PropTypes.shape({
+      text: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+};
 
-### `npm run build`
+WrappedListComponent.defaultProps = {
+  items: [
+    {
+        text: "SteelEye"
+    },
+    {
+        text: "Hey world!"
+    },
+    {
+        text:"Vinayak"
+    },
+    {
+      text: "welcome to steeleye"
+    },
+  ]
+};
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+const List = memo(WrappedListComponent);
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+export default List;
